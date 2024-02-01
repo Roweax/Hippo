@@ -74,6 +74,7 @@ fn main() -> Result<(), impl Error> {
             // Enable enumerating devices that use non-conformant Vulkan implementations.
             // (e.g. MoltenVK)
             flags: InstanceCreateFlags::ENUMERATE_PORTABILITY,
+            engine_name: Some("Hippo Engine".to_string()),
             enabled_extensions: required_extensions,
             ..Default::default()
         },
@@ -87,6 +88,7 @@ fn main() -> Result<(), impl Error> {
     // object from it, which represents the drawable surface of a window. For that we must wrap the
     // `winit::window::Window` in an `Arc`.
     let window = Arc::new(WindowBuilder::new().build(&event_loop).unwrap());
+    window.set_title("Hippo 3D Engine");
     let surface = Surface::from_window(instance.clone(), window.clone()).unwrap();
 
     // Choose device extensions that we're going to use. In order to present images to a surface,
