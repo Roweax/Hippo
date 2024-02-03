@@ -3,13 +3,16 @@
 
 use eframe::{egui, egui_glow, glow};
 
-use egui::mutex::Mutex;
+use egui::{mutex::Mutex, Modifiers};
 use std::sync::Arc;
+
+mod graph;
+mod tests;
 
 fn main() -> Result<(), eframe::Error> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([350.0, 380.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([1280.0, 720.0]),
         multisampling: 4,
         renderer: eframe::Renderer::Glow,
         ..Default::default()
@@ -17,11 +20,11 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Hippo Engine",
         options,
-        Box::new(|cc| Box::new(MyApp::new(cc))),
+        Box::new(|cc| Box::new(HippoEngine::new(cc))),
     )
 }
 
-struct MyApp {
+struct HippoEngine {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
     rotating_triangle: Arc<Mutex<RotatingTriangle>>,
     angle: f32,
@@ -29,7 +32,7 @@ struct MyApp {
     age: u32,
 }
 
-impl MyApp {
+impl HippoEngine {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let gl = cc
             .gl
@@ -44,22 +47,74 @@ impl MyApp {
     }
 }
 
-impl eframe::App for MyApp {
+impl eframe::App for HippoEngine {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::TopBottomPanel::top("top_bar").show(ctx, |ui| {
+            ui.horizontal_wrapped(|ui| {
+                ui.visuals_mut().button_frame = false;
+
+                ui.menu_button("File", |ui| {
+                    ui.set_min_width(100.0);
+                    ui.style_mut().wrap = Some(false);
+
+                    if ui
+                        .add(
+                            egui::Button::new("New").shortcut_text(ui.ctx().format_shortcut(
+                                &egui::KeyboardShortcut::new(
+                                    Modifiers::CTRL | Modifiers::SHIFT,
+                                    egui::Key::N,
+                                ),
+                            )),
+                        )
+                        .clicked()
+                    {}
+                });
+                // if ui.button("🦛").clicked() {}
+
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    egui::widgets::global_dark_light_mode_switch(ui);
+                    ui.separator();
+                });
+            });
+        });
+
+        let is_open = true;
+        egui::SidePanel::left("param_panel")
+            .resizable(false)
+            .show_animated(ctx, is_open, |ui| {
+                ui.vertical_centered(|ui| {
+                    ui.heading("💻 Parameters");
+                });
+            });
+
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Hippo 3D Engine...");
+            ui.heading("💻 Node Graph");
+        });
 
-            ui.horizontal(|ui| {
-                ui.spacing_mut().item_spacing.x = 0.0;
-                ui.label("The triangle is being painted using ");
-                ui.hyperlink_to("glow", "https://github.com/grovesNL/glow");
-                ui.label(" (OpenGL).");
+        egui::SidePanel::right("visual_panel")
+            .resizable(false)
+            .show_animated(ctx, is_open, |ui| {
+                ui.horizontal(|ui| {
+                    ui.spacing_mut().item_spacing.x = 0.0;
+                    ui.label("The triangle is being painted using ");
+                    ui.hyperlink_to("glow", "https://github.com/grovesNL/glow");
+                    ui.label(" (OpenGL).");
+                });
+
+                egui::Frame::canvas(ui.style()).show(ui, |ui| {
+                    self.custom_painting(ui);
+                });
+                ui.label("Drag to rotate!");
             });
 
-            egui::Frame::canvas(ui.style()).show(ui, |ui| {
-                self.custom_painting(ui);
+        egui::TopBottomPanel::bottom("bottom_bar").show(ctx, |ui| {
+            ui.vertical_centered(|ui| {
+                use egui::special_emojis::GITHUB;
+                ui.hyperlink_to(
+                    format!("{GITHUB} Hippo on GitHub"),
+                    "https://github.com/Roweax/Hippo",
+                );
             });
-            ui.label("Drag to rotate!");
         });
     }
 
@@ -70,7 +125,7 @@ impl eframe::App for MyApp {
     }
 }
 
-impl MyApp {
+impl HippoEngine {
     fn custom_painting(&mut self, ui: &mut egui::Ui) {
         let (rect, response) =
             ui.allocate_exact_size(egui::Vec2::splat(300.0), egui::Sense::drag());

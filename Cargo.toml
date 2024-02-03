@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 eframe = {}
 env_logger = {}
+ndarray = {}
+slotmap = { version = "1.0" }
