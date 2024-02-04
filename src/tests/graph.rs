@@ -4,7 +4,7 @@ use super::super::graph;
 
 #[test]
 fn create_graph() {
-    let g = graph::graph::Graph::<f32>::new();
+    let g = graph::Graph::<f32>::new();
 }
 
 #[test]

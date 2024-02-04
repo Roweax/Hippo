@@ -7,7 +7,7 @@ pub struct Graph<NodeData> {
     pub nodes: SlotMap<NodeId, Node<NodeData>>,
     // pub inputs: SlotMap<InputId, InputParam<DataType, ValueType>>,
     // pub outputs: SlotMap<OutputId, OutputParam<DataType>>,
-    pub connections: SecondaryMap<InputId, OutputId>,
+    pub connections: SecondaryMap<SlotId, SlotId>,
 }
 
 impl<NodeData> Graph<NodeData> {
