@@ -7,6 +7,7 @@ use egui::{mutex::Mutex, Modifiers};
 use std::sync::Arc;
 
 mod graph;
+mod math;
 mod tests;
 
 fn main() -> Result<(), eframe::Error> {

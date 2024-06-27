@@ -10,3 +10,4 @@ eframe = {}
 env_logger = {}
 ndarray = {}
 slotmap = { version = "1.0" }
+num-traits = "0.2"
