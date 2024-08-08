@@ -21,7 +21,7 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Hippo Engine",
         options,
-        Box::new(|cc| Box::new(HippoEngine::new(cc))),
+        Box::new(|cc| Ok(Box::new(HippoEngine::new(cc)))),
     )
 }
 
